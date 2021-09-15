@@ -2,6 +2,7 @@ namespace WAIUA.Models
 {
     public class Player {
         public User User { get; set; }
+        public string Region {  get; set; }
         public Agent Agent { get; set; }
         public string PartyId { get; set; }
         public Team Team { get; set; }

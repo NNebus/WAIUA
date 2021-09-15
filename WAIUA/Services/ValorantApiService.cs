@@ -55,7 +55,8 @@ namespace WAIUA.Services
 
             Player player = new() {
                 Name = uinfoObj["GameName"].Value<string>(),
-                Tag = uinfoObj["TagLine"].Value<string>()
+                Tag = uinfoObj["TagLine"].Value<string>(),
+                Region = Region
             };
 
             return player;
@@ -64,6 +65,10 @@ namespace WAIUA.Services
 
         public string GetUniqueAccountId()
         {
+            if (string.IsNullOrEmpty(Account.AccessToken)) {
+                Account.GetTokens();
+            }
+
             RestClient client = new(new Uri(ApiUrl.RiotUserInfoServiceUrl));
             RestRequest request = new(Method.POST);
             request.AddHeader("Authorization", $"Bearer {Account.AccessToken}");
