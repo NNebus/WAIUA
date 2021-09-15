@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
@@ -25,7 +25,7 @@ namespace WAIUA.Services
         }
         public Player GetPlayer() {
             string Region = GetLocalRegion().Split('_')[0];
-            string url = $"https://pd.{Region}.a.pvp.net/name-service/v2/players";
+            string url = ApiUrl.RiotPlayerServiceUrl.Replace("{###Region###}", Region);
 
 
             string[] body = new string[1] {
