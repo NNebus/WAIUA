@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
@@ -64,7 +64,6 @@ namespace WAIUA.Services
             return player;
         }
 
-
         public string GetUniqueAccountId()
         {
             if (string.IsNullOrEmpty(Account.AccessToken)) {
@@ -81,7 +80,6 @@ namespace WAIUA.Services
             JToken PUUIDObj = JObject.FromObject(PlayerInfo);
             return PUUIDObj["sub"].Value<string>();
         }
-
 
         public bool GetConnectionData()
         {
@@ -274,6 +272,7 @@ namespace WAIUA.Services
                     Incognito = (bool)p["PlayerIdentity"]["Incognito"],
                     HideAccountLevel = (bool)p["PlayerIdentity"]["HideAccountLevel"],
                     Agent = AgentHelper.GetFromCharacterId((string)p["PlayerIdentity"]["CharacterID"]),
+                    MatchHistory = GetPlayerMatchHistory((string)p["Subject"])
                 }).ToList();
 
 
@@ -287,6 +286,45 @@ namespace WAIUA.Services
             }
 
             return match;
+        }
+        public List<MatchHistoryEntry> GetPlayerMatchHistory(string playerId) { // WIP
+            // todo: refactor
+            string url = ApiUrl.RiotMatchHistorySericeUrl
+                .Replace("{###Region###}", Account.Region.Split("_")[0])
+                .Replace("{###PUUID###}", playerId);
+
+            RestClient client = new(url)
+            {
+                CookieContainer = Account.CookieContainer
+            };
+            RestRequest request = new(Method.GET);
+            request.AddHeader("X-Riot-Entitlements-JWT", Account.EntitlementToken)
+            .AddHeader("Authorization", $"Bearer {Account.AccessToken}");
+
+            string response = client.Execute(request).Content;
+
+
+            JObject matchInfo = JsonConvert.DeserializeObject(response) as JObject;
+            JArray matches = (JArray)matchInfo["Matches"];
+
+            List<MatchHistoryEntry> matchHistory = matches.Select( match => new MatchHistoryEntry()
+            {
+                //MatchResult = ((int)match["RankedRatingEarned"]) == 1 ? MatchResult.Win : MatchResult.Loss
+                //User = new User()
+                //{
+                //    Id = (string)p["Subject"]
+                //},
+                //Team = ((string)p["TeamID"]) == "Blue" ? Team.Blue : Team.Red,
+                //CardId = (string)p["PlayerIdentity"]["PlayerCardID"],
+                //TitleId = (string)p["PlayerIdentity"]["PlayerTitleID"],
+                //AccountLevel = (int)p["PlayerIdentity"]["AccountLevel"],
+                //Icognito = (bool)p["PlayerIdentity"]["Icognito"],
+                //HideAccountLevel = (bool)p["PlayerIdentity"]["HideAccountLevel"],
+                //Agent = AgentHelper.GetFromCharacterId((string)p["PlayerIdentity"]["CharacterID"]),
+                //MatchHistory = GetPlayerMatchHistory((string)p["Subject"])
+            }).ToList();
+
+            return matchHistory;
         }
     }
 }

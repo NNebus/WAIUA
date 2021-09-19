@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using WAIUA.Models;
 using WAIUA.Services;
 using Xunit;
@@ -66,5 +66,18 @@ namespace WAIUA.Tests
 
             Assert.False(string.IsNullOrEmpty(matchId));
         }
+
+
+        //[Fact]
+        //public void GetPlayerMatchHistory() // WIP
+        //{
+        //    Account account = GetAccount();
+        //    ValorantApiService valorantApiService = new(account);
+        //    string matchId = valorantApiService.GetCurrentMatchId();
+
+        //    valorantApiService.GetMatchData(matchId);
+
+        //    Assert.False(string.IsNullOrEmpty(matchId));
+        //}
     }
 }
