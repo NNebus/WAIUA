@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace WAIUA.Models
 {
     public class Player {
@@ -12,5 +14,11 @@ namespace WAIUA.Models
         public string Name { get; set; }
         public string Tag { get; set; }
         public string NameWithTag => $"{Name}#{Tag}";
+        public string CardId { get; set; }
+        public string TitleId { get; set; }
+        public int AccountLevel { get; set; }
+        public bool Incognito {  get; set; }
+        public bool HideAccountLevel { get; set; }
+        public List<MatchHistoryEntry> MatchHistory { get; set; }
     }
 }
