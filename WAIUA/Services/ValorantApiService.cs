@@ -101,6 +101,7 @@ namespace WAIUA.Services
             }
             else
             {
+                throw new ValorantNotRunningException("Could not login");
                 return false; // not logged in
             }
         }
