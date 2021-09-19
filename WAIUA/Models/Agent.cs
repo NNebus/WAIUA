@@ -3,6 +3,8 @@ using System.Runtime.Serialization;
 namespace WAIUA.Models
 {
     public enum Agent {
+        [EnumMember(Value = "None")]
+        None,
         [EnumMember(Value = "Brimstone")]
         Brimstone,
         [EnumMember(Value = "Viper")]
@@ -35,5 +37,21 @@ namespace WAIUA.Models
         Astra,
         [EnumMember(Value = "Kay\\O")]
         KayO
+    }
+
+    public static class AgentHelper {
+        public static Agent GetFromCharacterId(string characterId) { // WIP - maybe just cacing the Id's
+
+            switch (characterId)
+            {
+                case "6f2a04ca-43e0-be17-7f36-b3908627744d":
+                return Agent.Skye;
+
+
+                default:
+                    return Agent.None;
+            }
+
+        } 
     }
 }
