@@ -216,5 +216,77 @@ namespace WAIUA.Services
 
             return match.Id;
         }
+
+        public dynamic GetMatchData(string matchId)
+        {
+            Match match = new();
+
+            if (string.IsNullOrEmpty(Account.AccessToken) || string.IsNullOrEmpty(Account.EntitlementToken))
+            {
+                Account.GetTokens();
+            }
+
+            if (string.IsNullOrEmpty(Account.Region))
+            {
+                Account.Region = GetLocalRegion();
+            }
+
+            if (string.IsNullOrEmpty(Account.UniqueId))
+            {
+                Account.UniqueId = GetUniqueAccountId();
+            }
+
+            if (string.IsNullOrEmpty(Account.AccessToken) || string.IsNullOrEmpty(Account.EntitlementToken))
+            {
+                Account.GetTokens();
+            }
+
+            try
+            {
+                // todo: refactor
+                string url = ApiUrl.RiotMatchServiceUrl2
+                    .Replace("{###Shard###}", Account.Region.Split("_")[1])
+                    .Replace("{###Region###}", Account.Region.Split("_")[0])
+                    .Replace("{###MatchId###}", matchId);
+
+                RestClient client = new(url)
+                {
+                    CookieContainer = Account.CookieContainer
+                };
+                RestRequest request = new(Method.GET);
+                request.AddHeader("X-Riot-Entitlements-JWT", Account.EntitlementToken)
+                .AddHeader("Authorization", $"Bearer {Account.AccessToken}");
+
+                string response = client.Execute(request).Content;
+
+
+                JObject matchInfo = JsonConvert.DeserializeObject(response) as JObject;
+                JArray players = (JArray)matchInfo["Players"];
+
+                List<Player> matchPlayers = players.Select(p => new Player() { 
+                    User = new User() { 
+                        Id = (string)p["Subject"]
+                    },
+                    Team = ((string)p["TeamID"]) == "Blue" ? Team.Blue : Team.Red,
+                    CardId = (string)p["PlayerIdentity"]["PlayerCardID"],
+                    TitleId = (string)p["PlayerIdentity"]["PlayerTitleID"],
+                    AccountLevel = (int)p["PlayerIdentity"]["AccountLevel"],
+                    Incognito = (bool)p["PlayerIdentity"]["Incognito"],
+                    HideAccountLevel = (bool)p["PlayerIdentity"]["HideAccountLevel"],
+                    Agent = AgentHelper.GetFromCharacterId((string)p["PlayerIdentity"]["CharacterID"]),
+                }).ToList();
+
+
+                JToken matchinfoObj = JObject.FromObject(matchInfo);
+                match.Id = matchinfoObj["MatchID"].Value<string>();
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e);
+                throw new Exception(e.Message);
+            }
+
+            return match;
+        }
     }
 }

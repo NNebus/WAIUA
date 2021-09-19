@@ -54,5 +54,17 @@ namespace WAIUA.Tests
 
             Assert.False(string.IsNullOrEmpty(matchId));
         }
+
+        [Fact]
+        public void GetCurrentMatchData() // WIP
+        {
+            Account account = GetAccount();
+            ValorantApiService valorantApiService = new(account);
+            string matchId = valorantApiService.GetCurrentMatchId();
+
+            valorantApiService.GetMatchData(matchId);
+
+            Assert.False(string.IsNullOrEmpty(matchId));
+        }
     }
 }
