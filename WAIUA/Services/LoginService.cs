@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
@@ -60,7 +60,7 @@ namespace WAIUA.Services
             authConfig.username = Account.Username;
             authConfig.password = Account.Password;
             authConfig.remember = "true";
-            authConfig.language = "en_US";
+            authConfig.language = "en_US"; // todo: get actual language
 
             return JsonConvert.SerializeObject(authConfig);
         }
