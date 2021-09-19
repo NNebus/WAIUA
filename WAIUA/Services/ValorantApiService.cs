@@ -129,6 +129,7 @@ namespace WAIUA.Services
             String Region = "";
             String Shard = "";
 
+            // todo: refactor
             RestClient client = new RestClient(new Uri($"https://127.0.0.1:{Port}/product-session/v1/external-sessions")) {
                 RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
             };
