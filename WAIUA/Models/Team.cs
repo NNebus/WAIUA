@@ -4,8 +4,8 @@ namespace WAIUA.Models
 {
     public enum Team {
         [EnumMember(Value = "blue")]
-        blue, 
+        Blue, 
         [EnumMember(Value = "red")]
-        red
+        Red
     }
 }
