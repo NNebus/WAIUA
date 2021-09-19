@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using WAIUA.Models;
 using WAIUA.Services;
 using Xunit;
@@ -42,6 +42,17 @@ namespace WAIUA.Tests
             string localRegion = valorantApiService.GetLocalRegion();
 
             Assert.False(string.IsNullOrEmpty(localRegion));
+        }
+
+
+        [Fact]
+        public void GetCurrentMatchId()
+        {
+            Account account = GetAccount();
+            ValorantApiService valorantApiService = new(account);
+            string matchId = valorantApiService.GetCurrentMatchId();
+
+            Assert.False(string.IsNullOrEmpty(matchId));
         }
     }
 }

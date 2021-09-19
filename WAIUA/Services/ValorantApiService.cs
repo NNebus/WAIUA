@@ -2,7 +2,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using WAIUA.Api;
 using WAIUA.Models;
@@ -163,6 +165,54 @@ namespace WAIUA.Services
             }
 
             return $"{Region}_{Shard}";
+        }
+
+        public string GetCurrentMatchId() {
+            Match match = new();
+
+            if (string.IsNullOrEmpty(Account.AccessToken) || string.IsNullOrEmpty(Account.EntitlementToken))
+            {
+                Account.GetTokens();
+            }
+
+            if (string.IsNullOrEmpty(Account.Region)) {
+                Account.Region = GetLocalRegion();
+            }
+
+            if(string.IsNullOrEmpty(Account.UniqueId)) {
+                Account.UniqueId = GetUniqueAccountId();
+            }
+
+            if (string.IsNullOrEmpty(Account.AccessToken) || string.IsNullOrEmpty(Account.EntitlementToken)) {
+                Account.GetTokens();
+            }
+
+            try
+            {
+                // todo: refactor
+                string url = ApiUrl.RiotMatchServiceUrl
+                    .Replace("{###Shard###}", Account.Region.Split("_")[1])
+                    .Replace("{###Region###}", Account.Region.Split("_")[0])
+                    .Replace("{###PUUID###}", Account.UniqueId);
+
+                RestClient client = new(url) {
+                    CookieContainer = Account.CookieContainer
+                };
+                RestRequest request = new(Method.GET);
+                request.AddHeader("X-Riot-Entitlements-JWT", Account.EntitlementToken)
+                .AddHeader("Authorization", $"Bearer {Account.AccessToken}");
+                string response = client.Execute(request).Content;
+                var matchinfo = JsonConvert.DeserializeObject(response);
+                JToken matchinfoObj = JObject.FromObject(matchinfo);
+                match.Id = matchinfoObj["MatchID"].Value<string>();
+            }
+            catch (Exception e)
+            {
+                // Todo: Add Exception for non started matches
+                System.Diagnostics.Debug.WriteLine(e);
+            }
+
+            return match.Id;
         }
     }
 }
