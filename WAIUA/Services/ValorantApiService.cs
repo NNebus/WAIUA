@@ -208,7 +208,6 @@ namespace WAIUA.Services
             }
             catch (Exception e)
             {
-                // Todo: Add Exception for non started matches
                 System.Diagnostics.Debug.WriteLine(e);
 
                 // Todo: Add Exception for non started matches
