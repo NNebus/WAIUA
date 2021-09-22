@@ -290,7 +290,7 @@ namespace WAIUA.Services
             return match;
         }
 
-        public List<MatchHistoryEntry> GetPlayerMatchHistory(string playerId) { // WIP
+        public List<MatchHistoryEntry> GetPlayerMatchHistory(string playerId) {
             // todo: refactor
             string url = ApiUrl.RiotMatchHistorySericeUrl
                 .Replace("{###Region###}", Account.Region.Split("_")[0])
@@ -302,29 +302,21 @@ namespace WAIUA.Services
             };
             RestRequest request = new(Method.GET);
             request.AddHeader("X-Riot-Entitlements-JWT", Account.EntitlementToken)
-            .AddHeader("Authorization", $"Bearer {Account.AccessToken}");
+            .AddHeader("Authorization", $"Bearer {Account.AccessToken}")
+            .AddHeader("X-Riot-ClientPlatform", ClientPlatform)
+            .AddHeader("X-Riot-ClientVersion", GameVersion);
 
             string response = client.Execute(request).Content;
 
 
             JObject matchInfo = JsonConvert.DeserializeObject(response) as JObject;
-            JArray matches = (JArray)matchInfo["Matches"];
+            JArray matches = (JArray)matchInfo["History"];
 
-            List<MatchHistoryEntry> matchHistory = matches.Select( match => new MatchHistoryEntry()
+            List<MatchHistoryEntry> matchHistory = matches.Select(match => new MatchHistoryEntry()
             {
-                //MatchResult = ((int)match["RankedRatingEarned"]) == 1 ? MatchResult.Win : MatchResult.Loss
-                //User = new User()
-                //{
-                //    Id = (string)p["Subject"]
-                //},
-                //Team = ((string)p["TeamID"]) == "Blue" ? Team.Blue : Team.Red,
-                //CardId = (string)p["PlayerIdentity"]["PlayerCardID"],
-                //TitleId = (string)p["PlayerIdentity"]["PlayerTitleID"],
-                //AccountLevel = (int)p["PlayerIdentity"]["AccountLevel"],
-                //Icognito = (bool)p["PlayerIdentity"]["Icognito"],
-                //HideAccountLevel = (bool)p["PlayerIdentity"]["HideAccountLevel"],
-                //Agent = AgentHelper.GetFromCharacterId((string)p["PlayerIdentity"]["CharacterID"]),
-                //MatchHistory = GetPlayerMatchHistory((string)p["Subject"])
+                Id = (string)match["MatchID"],
+                Team = TeamHelper.GetTeamFromString((string)match["TeamID"]),
+                StartTime = (new DateTime(1970, 1, 1)).AddMilliseconds(double.Parse((string)match["GameStartTime"]))
             }).ToList();
 
             return matchHistory;

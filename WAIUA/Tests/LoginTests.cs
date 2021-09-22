@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using WAIUA.Models;
 using WAIUA.Services;
 using Xunit;
@@ -56,7 +56,7 @@ namespace WAIUA.Tests
         }
 
         [Fact]
-        public void GetCurrentMatchData() // WIP
+        public void GetPlayerMatchHistory()
         {
             Account account = GetAccount();
             ValorantApiService valorantApiService = new(account);
