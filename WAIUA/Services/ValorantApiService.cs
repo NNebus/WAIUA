@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using WAIUA.Api;
 using WAIUA.Models;
+using WAIUA.Models.Helper;
 
 namespace WAIUA.Services
 {
@@ -17,7 +18,6 @@ namespace WAIUA.Services
         private string LPassword { get; set; }
         private string Protocol { get; set; }
         private string GameVersion {  get; set; }
-
         private static readonly string ClientPlatform = "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9";
         private Account Account { get; set; }
 
@@ -267,7 +267,7 @@ namespace WAIUA.Services
                     User = new User() { 
                         Id = (string)p["Subject"]
                     },
-                    Team = ((string)p["TeamID"]) == "Blue" ? Team.Blue : Team.Red,
+                    Team = TeamHelper.GetTeamFromString((string)p["TeamID"]),
                     CardId = (string)p["PlayerIdentity"]["PlayerCardID"],
                     TitleId = (string)p["PlayerIdentity"]["PlayerTitleID"],
                     AccountLevel = (int)p["PlayerIdentity"]["AccountLevel"],
@@ -289,6 +289,7 @@ namespace WAIUA.Services
 
             return match;
         }
+
         public List<MatchHistoryEntry> GetPlayerMatchHistory(string playerId) { // WIP
             // todo: refactor
             string url = ApiUrl.RiotMatchHistorySericeUrl
