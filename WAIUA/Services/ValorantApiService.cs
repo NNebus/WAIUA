@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
@@ -210,6 +210,9 @@ namespace WAIUA.Services
             {
                 // Todo: Add Exception for non started matches
                 System.Diagnostics.Debug.WriteLine(e);
+
+                // Todo: Add Exception for non started matches
+                throw new MatchNotStartedException(e.Message);
             }
 
             return match.Id;
