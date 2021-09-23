@@ -321,5 +321,67 @@ namespace WAIUA.Services
 
             return matchHistory;
         }
+
+        public Match GetMatchResultOfMatchHistoryEntry(string matchId) {
+            if (string.IsNullOrEmpty(Account.AccessToken) || string.IsNullOrEmpty(Account.EntitlementToken))
+            {
+                Account.GetTokens();
+            }
+
+            if (string.IsNullOrEmpty(Account.Region))
+            {
+                Account.Region = GetLocalRegion();
+            }
+
+            // todo: refactor
+            string url = ApiUrl.RiotMatchResultSericeUrl
+                .Replace("{###Region###}", Account.Region.Split("_")[0])
+                .Replace("{###MatchId###}", matchId);
+
+            RestClient client = new(url)
+            {
+                CookieContainer = Account.CookieContainer
+            };
+            RestRequest request = new(Method.GET);
+            request.AddHeader("X-Riot-Entitlements-JWT", Account.EntitlementToken)
+            .AddHeader("Authorization", $"Bearer {Account.AccessToken}")
+            .AddHeader("X-Riot-ClientPlatform", ClientPlatform)
+            .AddHeader("X-Riot-ClientVersion", GameVersion);
+
+            string response = client.Execute(request).Content;
+
+
+            JObject deserializedResponse = JsonConvert.DeserializeObject(response) as JObject;
+            JObject matchInfo = deserializedResponse.Value<JObject>("matchInfo");      
+
+
+            return new Match() { 
+                Players = deserializedResponse.Value<JArray>("players").Select(player => {
+                    JObject playerObj = player as JObject;
+
+                    return new Player()
+                    {
+                        Team = TeamHelper.GetTeamFromString(playerObj.Value<string>("teamId")),
+                        TitleId = playerObj.Value<string>("playerTitle"),
+                        CardId = playerObj.Value<string>("playerCard"),
+                        AccountLevel= playerObj.Value<int>("accountLevel"),
+                        Agent = AgentHelper.GetFromCharacterId(playerObj.Value<string>("characterId")),
+                        Name = playerObj.Value<string>("gameName"),
+                        Tag = playerObj.Value<string>("tagLine"),
+                        User = new()
+                        {
+                            Id = playerObj.Value<string>("subject"), 
+                            AccountLevel = playerObj.Value<int>("accountLevel")
+                        }
+                    };
+                }).ToArray(),
+                Id = matchInfo.Value<string>("matchId"),
+                Map = matchInfo.Value<string>("mapId"),
+                MatchType = matchInfo.Value<string>("mapId") == "competitive" ? Models.MatchType.Competitive : Models.MatchType.Default,
+                StartTime = DateTimeHelper.GetDateTimeFromMilliseconds(matchInfo.Value<ulong>("gameStartMillis")),
+                EndTime = DateTimeHelper.GetDateTimeFromAddedMilliseconds(new List<ulong>() { matchInfo.Value<ulong>("gameStartMillis"), matchInfo.Value<ulong>("gameLengthMillis") }),
+                WinningTeam = TeamHelper.GetTeamFromString(deserializedResponse.Value<JArray>("roundResults").Last.Value<string>("winningTeam"))
+            };
+        }
     }
 }

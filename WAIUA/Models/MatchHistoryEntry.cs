@@ -10,6 +10,8 @@ namespace WAIUA.Models
 
     public enum MatchResult
     {
+        [EnumMember(Value = "Unknown")]
+        Unknown,
         [EnumMember(Value = "Win")]
         Win,
         [EnumMember(Value = "Loss")]
@@ -20,6 +22,9 @@ namespace WAIUA.Models
 
     public class MatchHistoryEntry
     {
-        public MatchResult MatchResult { get; set; }   
+        public MatchResult MatchResult { get; set; }
+        public string Id { get; set; }
+        public Team Team { get; set; }
+        public DateTime StartTime { get; set; }
     }
 }
