@@ -4,5 +4,6 @@ namespace WAIUA.Models
         public string Id {get; set;}
         public Region Region {get; set;}
         public int AccountLevel { get; set; }
+        public Rank Rank { get; set; }
     }
 }
