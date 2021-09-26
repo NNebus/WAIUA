@@ -297,10 +297,6 @@ namespace WAIUA.Services
         }
 
         public List<MatchHistoryEntry> GetPlayerMatchHistory(string playerId) {
-            // todo: refactor
-            string url = ApiUrl.RiotMatchHistorySericeUrl
-                .Replace("{###Region###}", Account.Region.Split("_")[0])
-                .Replace("{###PUUID###}", playerId);
 
             if(string.IsNullOrEmpty(playerId))
             {
@@ -351,10 +347,7 @@ namespace WAIUA.Services
                 Account.Region = GetLocalRegion();
             }
 
-            // todo: refactor
             string url = ApiUrl.GetRiotMatchResultServiceUrl(Account.Region.Split("_")[0], matchId);
-                .Replace("{###Region###}", Account.Region.Split("_")[0])
-                .Replace("{###MatchId###}", matchId);
 
             RestClient client = new(url)
             {
@@ -368,10 +361,8 @@ namespace WAIUA.Services
 
             string response = client.Execute(request).Content;
 
-
             JObject deserializedResponse = JsonConvert.DeserializeObject(response) as JObject;
             JObject matchInfo = deserializedResponse.Value<JObject>("matchInfo");      
-
 
             return new Match() { 
                 Players = deserializedResponse.Value<JArray>("players").Select(player => {
