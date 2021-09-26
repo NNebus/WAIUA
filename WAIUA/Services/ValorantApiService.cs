@@ -448,5 +448,18 @@ namespace WAIUA.Services
                 }
             ).ToList();
         }
+
+        public Rank GetRankFromPlayer(IList<RankedMatch> rankedMatchHistory) {
+            RankedMatch lastRankedMatch = rankedMatchHistory.First();
+
+            if (lastRankedMatch == null) {
+                throw new Exception("No Ranked Match");
+            }
+
+            return new Rank() {
+                Level = lastRankedMatch.TierAfterUpdate,
+                Progress = lastRankedMatch.RankedRatingAfterUpdate
+            };
+        }
     }
 }

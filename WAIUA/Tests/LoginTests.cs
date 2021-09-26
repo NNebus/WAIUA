@@ -104,7 +104,16 @@ namespace WAIUA.Tests
             Assert.False(rankedMatchHistory.Count() == 0);
         }
 
-            Assert.False(res == null);
+        [Fact]
+        public void GetRankFromRankedHistory() {
+            Account account = GetAccount();
+            ValorantApiService valorantApiService = new(account);
+
+            List<RankedMatch> rankedMatchHistory = valorantApiService.GetRankedHistoryForPlayer(account.UniqueId);
+
+            Rank rank = valorantApiService.GetRankFromPlayer(rankedMatchHistory);
+
+            Assert.NotNull(rank);
         }
     }
 }
