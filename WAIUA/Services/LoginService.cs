@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
@@ -25,13 +25,13 @@ namespace WAIUA.Services
 
         public void GetAuthorization()
         {
-            new RestClient(ApiUrl.RiotAuthorizationServiceUrl) {
+            new RestClient(ApiUrl.GetRiotAuthorizationServiceUrl()) {
                 CookieContainer = CookieContainer
             }.Execute(new RestRequest(Method.POST).AddJsonBody(GetAuthorizationJson()));
         }
 
         public RestClient GetAuthorizedRestClient() {
-            RestClient restClient = new(ApiUrl.RiotAuthorizationServiceUrl)
+            RestClient restClient = new(ApiUrl.GetRiotAuthorizationServiceUrl())
             {
                 CookieContainer = CookieContainer
             };
@@ -46,7 +46,7 @@ namespace WAIUA.Services
             dynamic authConfig = new ExpandoObject();
             authConfig.client_id = "play-valorant-web-prod";
             authConfig.nonce = "1";
-            authConfig.redirect_uri = $"{ApiUrl.ValorantOptInUrl}";
+            authConfig.redirect_uri = ApiUrl.GetValorantOptInApiUrl();
             authConfig.response_type = "token id_token";
             authConfig.scope = "account openid";
 
@@ -69,7 +69,7 @@ namespace WAIUA.Services
         {
             GetAuthorization();
 
-            return new RestClient(ApiUrl.RiotAuthorizationServiceUrl)
+            return new RestClient(ApiUrl.GetRiotAuthorizationServiceUrl())
             {
                 CookieContainer = CookieContainer
             }.Execute(new RestRequest(Method.PUT).AddJsonBody(GetAuthenticationJson())).Content;
@@ -92,7 +92,7 @@ namespace WAIUA.Services
 
         public string GetEntitlementToken() {
 
-            RestClient client = new(new Uri(ApiUrl.RiotEntitlementServiceUrl));
+            RestClient client = new(new Uri(ApiUrl.GetRiotEntitlementServiceUrl()));
 
             string response = client.Execute(
                 new RestRequest(Method.POST)

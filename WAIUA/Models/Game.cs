@@ -18,7 +18,7 @@ namespace WAIUA.Models
         }
 
         private string GetLatestGameVersion () {
-            RestClient client = new RestClient(new Uri(ApiUrl.ValorantApi));
+            RestClient client = new RestClient(new Uri(ApiUrl.GetValorantApiUrl()));
             RestRequest request = new RestRequest(Method.GET);
             var response = client.Get(request);
             string content = response.Content;

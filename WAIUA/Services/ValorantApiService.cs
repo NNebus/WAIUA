@@ -26,8 +26,8 @@ namespace WAIUA.Services
             account.UniqueId = GetUniqueAccountId();
         }
         public Player GetPlayer() {
-            string Region = GetLocalRegion().Split('_')[0];
-            string url = ApiUrl.RiotPlayerServiceUrl.Replace("{###Region###}", Region);
+            string region = GetLocalRegion().Split('_')[0];
+            string url = ApiUrl.GetRiotPlayerServiceUrl(region);
 
 
             string[] body = new string[1] {
@@ -58,7 +58,7 @@ namespace WAIUA.Services
             Player player = new() {
                 Name = uinfoObj["GameName"].Value<string>(),
                 Tag = uinfoObj["TagLine"].Value<string>(),
-                Region = Region
+                Region = region
             };
 
             return player;
@@ -70,7 +70,7 @@ namespace WAIUA.Services
                 Account.GetTokens();
             }
 
-            RestClient client = new(new Uri(ApiUrl.RiotUserInfoServiceUrl));
+            RestClient client = new(new Uri(ApiUrl.GetRiotUserInfoServiceUrl()));
             RestRequest request = new(Method.POST);
             request.AddHeader("Authorization", $"Bearer {Account.AccessToken}");
             request.AddJsonBody("{}");
@@ -106,7 +106,7 @@ namespace WAIUA.Services
 
         public string GetLatestGameVersion()
         {
-            RestClient client = new(new Uri(ApiUrl.ValorantApi));
+            RestClient client = new(new Uri(ApiUrl.GetValorantApiUrl()));
             RestRequest request = new(Method.GET);
             var response = client.Get(request);
             string content = response.Content;
@@ -189,18 +189,19 @@ namespace WAIUA.Services
 
             try
             {
-                // todo: refactor
-                string url = ApiUrl.RiotMatchServiceUrl
-                    .Replace("{###Shard###}", Account.Region.Split("_")[1])
-                    .Replace("{###Region###}", Account.Region.Split("_")[0])
-                    .Replace("{###PUUID###}", Account.UniqueId);
-
+                string url = ApiUrl.GetRiotMatchServiceUrl(
+                    Account.Region.Split("_")[0], 
+                    Account.Region.Split("_")[1], 
+                    Account.UniqueId
+                );
+                    
                 RestClient client = new(url) {
                     CookieContainer = Account.CookieContainer
                 };
                 RestRequest request = new(Method.GET);
                 request.AddHeader("X-Riot-Entitlements-JWT", Account.EntitlementToken)
                 .AddHeader("Authorization", $"Bearer {Account.AccessToken}");
+
                 string response = client.Execute(request).Content;
                 var matchinfo = JsonConvert.DeserializeObject(response);
                 JToken matchinfoObj = JObject.FromObject(matchinfo);
@@ -243,12 +244,12 @@ namespace WAIUA.Services
 
             try
             {
-                // todo: refactor
-                string url = ApiUrl.RiotMatchServiceUrl2
-                    .Replace("{###Shard###}", Account.Region.Split("_")[1])
-                    .Replace("{###Region###}", Account.Region.Split("_")[0])
-                    .Replace("{###MatchId###}", matchId);
-
+                string url = ApiUrl.GetRiotMatchServiceUrl2(
+                    Account.Region.Split("_")[0],
+                    Account.Region.Split("_")[1],
+                    matchId
+                );
+  
                 RestClient client = new(url)
                 {
                     CookieContainer = Account.CookieContainer
@@ -296,6 +297,8 @@ namespace WAIUA.Services
                 .Replace("{###Region###}", Account.Region.Split("_")[0])
                 .Replace("{###PUUID###}", playerId);
 
+            string url = ApiUrl.GetRiotMatchHistoryServiceUrl(Account.Region.Split("_")[0], playerId);
+
             RestClient client = new(url)
             {
                 CookieContainer = Account.CookieContainer
@@ -334,7 +337,7 @@ namespace WAIUA.Services
             }
 
             // todo: refactor
-            string url = ApiUrl.RiotMatchResultSericeUrl
+            string url = ApiUrl.GetRiotMatchResultServiceUrl(Account.Region.Split("_")[0], matchId);
                 .Replace("{###Region###}", Account.Region.Split("_")[0])
                 .Replace("{###MatchId###}", matchId);
 
