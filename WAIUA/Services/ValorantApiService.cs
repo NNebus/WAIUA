@@ -401,5 +401,52 @@ namespace WAIUA.Services
                 WinningTeam = TeamHelper.GetTeamFromString(deserializedResponse.Value<JArray>("roundResults").Last.Value<string>("winningTeam"))
             };
         }
+
+        public List<RankedMatch> GetRankedHistoryForPlayer(string playerId) {
+
+            if (string.IsNullOrEmpty(playerId) || string.IsNullOrWhiteSpace(playerId)) throw new Exception("Missing playerId");
+
+            if (string.IsNullOrEmpty(Account.AccessToken) || string.IsNullOrEmpty(Account.EntitlementToken))
+            {
+                Account.GetTokens();
+            }
+
+            if (string.IsNullOrEmpty(Account.Region))
+            {
+                Account.Region = GetLocalRegion();
+            }
+
+            string url = ApiUrl.GetRiotRankedMatchServiceUrl(Account.Region.Split("_")[0], playerId);
+
+            RestClient client = new(url)
+            {
+                CookieContainer = Account.CookieContainer
+            };
+            RestRequest request = new(Method.GET);
+            request.AddHeader("X-Riot-Entitlements-JWT", Account.EntitlementToken)
+            .AddHeader("Authorization", $"Bearer {Account.AccessToken}")
+            .AddHeader("X-Riot-ClientPlatform", ClientPlatform)
+            .AddHeader("X-Riot-ClientVersion", GameVersion);
+
+            string response = client.Execute(request).Content;
+
+            JObject deserializedResponse = JsonConvert.DeserializeObject(response) as JObject;
+           
+            var matches = deserializedResponse.Value<JToken>("Matches").AsEnumerable();
+
+            return matches.Select(matchItem =>
+                 new RankedMatch()
+                 {
+                    Id = matchItem.Value<string>("MatchID"),
+                    RankedRatingAfterUpdate = matchItem.Value<int>("RankedRatingAfterUpdate"),
+                    RankedRatingBeforeUpdate = matchItem.Value<int>("RankedRatingBeforeUpdate"),
+                    RankedRatingEarned = matchItem.Value<int>("RankedRatingEarned"), 
+                    MapId = matchItem.Value<string>("MapID"),
+                    SessionId = matchItem.Value<string>("SessionID"),
+                    TierAfterUpdate = matchItem.Value<int>("TierAfterUpdate"),
+                    TierBeforeUpdate = matchItem.Value<int>("TierBeforeUpdate")
+                }
+            ).ToList();
+        }
     }
 }
