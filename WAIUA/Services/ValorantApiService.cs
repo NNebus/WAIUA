@@ -302,6 +302,11 @@ namespace WAIUA.Services
                 .Replace("{###Region###}", Account.Region.Split("_")[0])
                 .Replace("{###PUUID###}", playerId);
 
+            if(string.IsNullOrEmpty(playerId))
+            {
+                throw new Exception("Missing playerId");
+            }
+
             string url = ApiUrl.GetRiotMatchHistoryServiceUrl(Account.Region.Split("_")[0], playerId);
 
             RestClient client = new(url)
