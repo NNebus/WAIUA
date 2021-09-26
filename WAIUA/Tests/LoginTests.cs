@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using WAIUA.Models;
 using WAIUA.Services;
@@ -9,7 +11,7 @@ namespace WAIUA.Tests
     {
 
         private static Account GetAccount() {
-            Account account = new(new CookieContainer()) { Username = "", Password = "" };
+            Account account = new(new CookieContainer()) { Username = "", Password = "" }; // Add your Credentials
 
             if (string.IsNullOrEmpty(account.AccessToken))
             {
@@ -67,14 +69,29 @@ namespace WAIUA.Tests
             Assert.False(string.IsNullOrEmpty(matchId));
         }
 
+        
         [Fact]
         public void GetPlayerMatchData()
         {
             Account account = GetAccount();
             ValorantApiService valorantApiService = new(account);
-            MatchHistoryEntry match = new() {
-                Id = "",  
+            List<Match> matches = new();
+
+            List<string> matchIds = new() {
+               // Add your MatchId's
             };
+
+            foreach (string matchId in matchIds) {
+                MatchHistoryEntry match = new()
+                {
+                    Id = matchId
+                };
+
+                matches.Add(valorantApiService.GetMatchResultOfMatchHistoryEntry(match.Id));
+            }
+
+            Assert.False(matches.First() == null);
+        }
 
             Match res = valorantApiService.GetMatchResultOfMatchHistoryEntry(match.Id);
 
