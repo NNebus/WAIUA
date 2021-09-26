@@ -220,6 +220,11 @@ namespace WAIUA.Services
 
         public dynamic GetMatchData(string matchId)
         {
+
+            if (string.IsNullOrEmpty(matchId)) {
+                throw new Exception("Missing matchId");
+            }
+
             Match match = new();
 
             if (string.IsNullOrEmpty(Account.AccessToken) || string.IsNullOrEmpty(Account.EntitlementToken))
