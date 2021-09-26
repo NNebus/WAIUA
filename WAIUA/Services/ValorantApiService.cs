@@ -336,6 +336,11 @@ namespace WAIUA.Services
         }
 
         public Match GetMatchResultOfMatchHistoryEntry(string matchId) {
+            if (string.IsNullOrEmpty(matchId))
+            {
+                throw new Exception("Missing matchId");
+            }
+
             if (string.IsNullOrEmpty(Account.AccessToken) || string.IsNullOrEmpty(Account.EntitlementToken))
             {
                 Account.GetTokens();
